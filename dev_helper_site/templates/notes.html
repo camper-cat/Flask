@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>📝 Notes Manager</h2>
+
+<!-- ================= -->
+<!-- ADD NOTE (POST) -->
+<!-- ================= -->
+
+<h3>Add new note</h3>
+
+<form action="/post_data" method="post">
+    <input type="text" name="comment" placeholder="Write your note..." required>
+    <button type="submit">Add note</button>
+</form>
+
+
+<hr>
+
+
+<!-- ================= -->
+<!-- NOTES LIST -->
+<!-- ================= -->
+
+<h3>📋 Notes list</h3>
+
+<ul>
+{% for note in notes %}
+    <li>
+        {{ note }}
+
+        <button onclick="editNote({{ loop.index0 }})">✏️</button>
+        <button onclick="deleteNote({{ loop.index0 }})">❌</button>
+    </li>
+{% else %}
+    <li>No notes yet...</li>
+{% endfor %}
+</ul>
+
+
+
+<hr>
+
+
+<!-- ================= -->
+<!-- EXTRA HTTP METHODS DEMO -->
+<!-- ================= -->
+
+
+<script>
+function sendPut() {
+    fetch("/put_data", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            text: document.getElementById("putInput").value
+        })
+    })
+    .then(r => r.text())
+    .then(alert);
+}
+
+function sendPatch() {
+    fetch("/patch_data", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            text: document.getElementById("patchInput").value
+        })
+    })
+    .then(r => r.text())
+    .then(alert);
+}
+
+function sendDelete() {
+    fetch("/delete_data", {
+        method: "DELETE"
+    })
+    .then(r => r.text())
+    .then(alert)
+    .then(() => location.reload());
+}
+
+function deleteNote(index) {
+    fetch("/delete_note/" + index, {
+        method: "DELETE"
+    })
+    .then(r => r.text())
+    .then(() => location.reload());
+}
+
+function editNote(index) {
+    const newText = prompt("Enter new note text:");
+
+    if (!newText) return;
+
+    fetch("/update_note/" + index, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: newText })
+    })
+    .then(r => r.text())
+    .then(() => location.reload());
+}
+
+</script>
+
+{% endblock %}
